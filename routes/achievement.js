@@ -5,7 +5,7 @@ const { authenticateToken } = require('../middlewares/auth');
 const router = express.Router();
 
 // POST achievement
-router.post('/achievement', authenticateToken, (req, res) => {
+router.post('/new_achievement', authenticateToken, (req, res) => {
     const { achievementTypeId } = req.body;
     const userId = req.user.id; // Extract user ID from the verified JWT payload
 
@@ -38,7 +38,7 @@ router.post('/achievement', authenticateToken, (req, res) => {
 });
 
 // GET game achievements 
-router.get('/achievement/games', authenticateToken, (req, res) => {
+router.get('/games', authenticateToken, (req, res) => {
     const userId = req.user.id;
 
     const query = `
@@ -56,7 +56,7 @@ router.get('/achievement/games', authenticateToken, (req, res) => {
 });
 
 // GET quiz achievements
-router.get('/achievement/quizzes', authenticateToken, (req, res) => {
+router.get('/quizzes', authenticateToken, (req, res) => {
     const userId = req.user.id;
 
     const query = `
@@ -74,21 +74,20 @@ router.get('/achievement/quizzes', authenticateToken, (req, res) => {
 });
 
 // GET total achievements
-router.get('/achievement/total', authenticateToken, (req, res) => {
+router.get('/total', authenticateToken, (req, res) => {
     const userId = req.user.id;
 
     const query = `
-        SELECT at.name, at.description 
-        FROM achievements a
-        JOIN achievement_types at ON a.achievement_type_id = at.id
-        WHERE a.user_id = ?
+        SELECT COUNT(*) AS achievements 
+        FROM achievements 
+        WHERE user_id = ?
     `;
 
     db.query(query, [userId], (err, results) => {
         if (err) {
             return res.status(500).json({ error: 'Failed to fetch total achievements.' });
         }
-        res.json({ achievements: results });
+        res.status(200).json({ achievements: results[0].achievements });
     });
 });
 
